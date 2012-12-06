@@ -186,6 +186,8 @@ def make_zero(x):
 
 def calc_p_size(p):
     """
+    pの中の1の個数をpを暗号化したまま計算する
+
     >>> c.decode(calc_p_size(c.make_query('11111')))
     5
     >>> c.decode(calc_p_size(c.make_query('11011')))
@@ -200,7 +202,7 @@ def calc_p_size(p):
 
 def calc_p_and_q(p, q):
     """
-    pとqの両方のビットが経っている個数を数える
+    pとqの両方のビットが立っている個数を数える
     >>> c.decode(calc_p_and_q(c.make_query('11100'), '11000'))
     2
     >>> c.decode(calc_p_and_q(c.make_query('11100'), '00110'))
@@ -221,8 +223,8 @@ def calc_p_and_q(p, q):
 
 class Shared(object):
     "サーバとクライアントで共有している情報"
-    modulo = 2309
-    public = None # clientの初期化時に作る
+    modulo = 2309  # 適当な素数(2 * 3 * 5 * 7 * 11 - 1)
+    public = None  # clientの初期化時に作る
 
 
 class Client(object):
@@ -293,9 +295,11 @@ class Server(object):
 
         return result # シャッフルしたりしても良い
 
+
 def _test():
     import doctest
     doctest.testmod()
+
 
 if __name__ == '__main__':
     seed(12345)
