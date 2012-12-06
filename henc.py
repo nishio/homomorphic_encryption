@@ -24,7 +24,7 @@ u"""
 
 >>> response = _
 >>> print [c.decode(x) for x in response]
-[2304, 2306, 0, 2, 2307, 0]
+[-4, -2, 0, 2, -1, 0]
 
 
 FAQ
@@ -119,7 +119,7 @@ def logarithm(n, p, mod=None):
     >>> logarithm(7, 7 ** 3)
     3
     >>> logarithm(2, invert(2))
-    2307
+    -1
     >>> logarithm(2, 3, mod=7)
     Traceback (most recent call last):
     ...
@@ -127,12 +127,18 @@ def logarithm(n, p, mod=None):
     """
     if mod == None: mod = Shared.modulo
     result = 0
-    q = 1
-    while p != q:
+    posi = nega = 1
+    invn = invert(n, mod)
+    while True:
+        if posi == p:
+            return result
+        if nega == p:
+            return -result
+
         result += 1
-        q = mul(q, n, mod)
-        if q == 1: raise RuntimeError('No solution')
-    return result
+        posi = mul(posi, n, mod)
+        nega = mul(nega, invn, mod)
+        if posi == 1: raise RuntimeError('No solution')
 
 
 ## 暗号文の演算
@@ -156,9 +162,9 @@ def add(enc1, enc2):
 
 def add_m(enc, a):
     """暗号文への暗号化されていない値の加算
-    >>> one = c.encode(1, 123)
-    >>> c.decode(add_m(one, 1234))
-    1235
+    >>> one = c.encode(1, random())
+    >>> c.decode(add_m(one, 123))
+    124
     """
     c1, c2 = enc
     (f, g, h) = Shared.public
@@ -172,9 +178,9 @@ def negate(x):
 
 def scalar(x, k):
     """スカラー倍
-    >>> one = c.encode(1, 123)
-    >>> c.decode(scalar(one, 1234))
-    1234
+    >>> one = c.encode(1, random())
+    >>> c.decode(scalar(one, 123))
+    123
     """
     c1, c2 = x
     return (exponent(c1, k), exponent(c2, k))
@@ -272,14 +278,16 @@ class Server(object):
         """データベース内の各化合物ごとに暗号化されたまま類似度を計算する
 
         しきい値1/2だと1件だけアウト
+
         >>> ret = Server.search(c.make_query('11000'), 1, 2)
         >>> [c.decode(x) for x in ret]
-        [2307, 0, 1, 2, 0, 1]
+        [-1, 0, 1, 2, 0, 1]
 
         しきい値7/8だと1件を除きアウト(セーフなのはベストマッチの化合物)
+
         >>> ret = Server.search(c.make_query('11000'), 7, 8)
         >>> [c.decode(x) for x in ret]
-        [2289, 2296, 2303, 2, 2302, 2303]
+        [-19, -12, -5, 2, -6, -5]
         """
         result = []
         k1 = (alpha + beta - 1) * th_n + th_d
