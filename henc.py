@@ -186,10 +186,6 @@ def scalar(x, k):
     return (exponent(c1, k), exponent(c2, k))
 
 
-def make_zero(x):
-    return add(x, negate(x))
-
-
 def calc_p_size(p):
     """
     pの中の1の個数をpを暗号化したまま計算する
@@ -216,7 +212,7 @@ def calc_p_and_q(p, q):
     >>> c.decode(calc_p_and_q(c.make_query('11100'), '00011'))
     0
     """
-    result = make_zero(p[0])
+    result = (1, 1) # means zero: (g^0, h^0 * f^0)
     for pi, qi in zip(p, q):
         if qi == '1':
             result = add(result, pi)
